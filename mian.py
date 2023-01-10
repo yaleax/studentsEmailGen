@@ -349,7 +349,7 @@ elif user_input == 2:
 
     # 读入xls文件
     df = pd.read_excel(file_path)
-
+    df = df.dropna(how='all')
     # 打印读取的excel
     # print(df)
     # 打印第一行名字
