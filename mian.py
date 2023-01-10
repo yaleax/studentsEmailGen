@@ -42,7 +42,7 @@ def modify_data(data,domian):
         # 修改年级
         grade = f"Grade {row[1]}"
         # 将修改后的数据添加到修改后的列表中
-        modified_list.append([email, f"{first} {last}", first, last, f"{first.lower()}.{last.lower()}", email2, grade, row[2]])
+        modified_list.append([email, f"{first.capitalize()} {last.capitalize()}", first.capitalize(), last.capitalize(), f"{first.lower()}.{last.lower()}", email2, grade, row[2]])
     return modified_list
 
 # 添加数据成为指定格式
@@ -61,6 +61,30 @@ def add_data(data,domian,school,company):
         # 将YHIS插入到列表的倒数第二位，并添加组数据，数字和列表最后一位一样
         data[i] = item[:len(item)-1] + [school.upper(), item[len(item)-1], item[len(item)-1]] + ["OU=Students,OU=" + school.upper()+",OU=Locations,DC="+company.upper()+",DC="+company.upper()+"china,DC=com"]
     return data
+
+# 修改数据符合ID卡格式
+def modify_idcard(data):
+    modified_list = []
+    # 调整数据
+    for row in data:
+        name = row[0]
+        # 删除括号和括号内的内容
+        name = re.sub(r'\([^)]*\)', '', name)
+        # 将名字分成姓和名
+        first, last = name.split(',')
+        # 调换名字和姓氏
+        first, last = last, first
+        # 删除任何前/后空格
+        first = first.strip()
+        last = last.strip().lstrip()
+        # 用空字符代替空格
+        first = first.replace(" ", "")
+        last = last.replace(" ", "")
+
+        # 将修改后的数据添加到修改后的列表中
+        modified_list.append([row[2], f"{first.capitalize()} {last.capitalize()}", f"{first} {last}"]) # row[2]是学号 f"{first} {last}"是姓名
+
+    return modified_list
 
 def forteacher(data, file_name):
     # 创建一个Workbook对象
@@ -99,7 +123,22 @@ def formac(data, file_name):
 
 
     wb2.save('.' + os.sep + 'Email' + os.sep + str(current_date) + os.sep + file_name)
-
+# 为id创建excel
+def idcard_excel(data, file_name):
+    # 创建一个Workbook对象
+    wb2 = xlwt.Workbook()
+    # 创建一个Worksheet对象
+    ws2 = wb2.add_sheet('Sheet1')
+    # 写入表头
+    header_row = ['ID', 'Name', 'Photo']
+    for i, cell in enumerate(header_row):
+        ws2.write(0, i, cell)
+    # 写入数据
+    for i, row in enumerate(data):
+        ws2.write(i+1, 0, row[0])
+        ws2.write(i+1, 1, row[1])
+        ws2.write(i+1, 2, row[2])
+    wb2.save('.' + os.sep + 'IDcard' + os.sep + str(current_date) + os.sep + file_name)
 def forIthelp(data, filename):
     wb = xlwt.Workbook()
     ws = wb.add_sheet('Sheet1')
@@ -281,7 +320,18 @@ if user_input == 1:
     if user_input == "2":
         def get_id_info():
             while True:
-                print(f"你选择了ID卡所需数据格式是：{data}")
+                inputdata = modify_idcard(data)
+                print(f"转换后的数据是：{inputdata}")
+                # 创建Emails文件夹
+                folder_name = "./IDcard"
+                if not os.path.exists(folder_name):
+                    os.makedirs(folder_name)
+                # 在Emails文件夹下创建以时间命名的文件名
+                folder_name = "./IDcard/" + current_date
+                if not os.path.exists(folder_name):
+                    os.makedirs(folder_name)
+                idcard_excel(inputdata, 'idcard.xls')
+                print(f"文件保存成功,请在本程序目录下的IDcard/{current_date}查看文件！")
                 break
         data = get_id_info()
     else:
@@ -508,7 +558,18 @@ elif user_input == 2:
     if user_input == "2":
         def get_id_info():
             while True:
-                print(f"你选择了ID卡所需数据格式是：{data}")
+                inputdata = modify_idcard(data)
+                print(f"转换后的数据是：{inputdata}")
+                # 创建Emails文件夹
+                folder_name = "./IDcard"
+                if not os.path.exists(folder_name):
+                    os.makedirs(folder_name)
+                # 在Emails文件夹下创建以时间命名的文件名
+                folder_name = "./IDcard/" + current_date
+                if not os.path.exists(folder_name):
+                    os.makedirs(folder_name)
+                idcard_excel(inputdata, 'idcard.xls')
+                print(f"文件保存成功,请在本程序目录下的IDcard/{current_date}查看文件！")
                 break
         data = get_id_info()
 else:
